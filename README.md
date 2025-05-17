@@ -1,4 +1,8 @@
-# LAB307 - Building GenAI Apps in C#: AI Templates, GitHub Models, Azure OpenAI & More
+<p align="center">
+<img src="img/banner.jpg" alt="decorative banner" width="1200"/>
+</p>
+
+# BUILD25 LAB307 - Building GenAI Apps in C#: AI Templates, GitHub Models, Azure OpenAI & More
 
 Get up to speed quickly with AI app building in .NET! Explore the new .NET AI project templates integrated with Microsoft Extensions for AI (MEAI), GitHub Models, and vector data stores. Learn how to take advantage of free GitHub Models in development, then deploy with global scale and enterprise support using Azure OpenAI. Gain hands-on experience building cutting-edge intelligent solutions with state-of-the-art frameworks and best practices.
 
@@ -55,12 +59,18 @@ The repository is structured as follows:
 - `/src/start`: Contains the starting code for the lab exercises
 - `/src/complete`: Contains the completed solution after all lab exercises
 
-## Additional Resources
 
-- [.NET AI Documentation](https://learn.microsoft.com/en-us/dotnet/machine-learning/ai-overview)
-- [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview)
-- [Microsoft Extensions for AI Documentation](https://learn.microsoft.com/en-us/dotnet/machine-learning/extensions-ai/)
-- [Azure OpenAI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+## Session Resources 
+
+| Resources          | Links                             | Description        |
+|:-------------------|:----------------------------------|:-------------------|
+| Build session page | https://build.microsoft.com/sessions/lab307 | Event session page with downloadable recording, slides, resources, and speaker bio |
+|Microsoft Learn|https://aka.ms/build25/plan/ADAI_DevStartPlan|Official Collection or Plan with skilling resources to learn at your own pace|
+|Microsoft Learn|https://learn.microsoft.com/en-us/dotnet/machine-learning/ai-overview|.NET AI Documentation|
+|Microsoft Learn|https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview|.NET Aspire Documentation|
+|Microsoft Learn|https://learn.microsoft.com/en-us/dotnet/machine-learning/extensions-ai/|Microsoft Extensions for AI Documentation|
+|Microsoft Learn|https://learn.microsoft.com/en-us/azure/ai-services/openai/|Azure OpenAI Documentation|
+
 
 ## License
 
