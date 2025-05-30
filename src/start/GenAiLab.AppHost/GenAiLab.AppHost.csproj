@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,13 +8,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
-    <UserSecretsId>9a90906c-ecc9-4312-85f2-e2bf7deb5d12</UserSecretsId>
+    <UserSecretsId>a89f348c-2e73-4520-b2e2-3b2d73960202</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
-    <PackageReference Include="Aspire.Hosting.Qdrant" Version="9.1.0" />
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" Version="9.3.1-beta.260" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
+    <PackageReference Include="Aspire.Hosting.Qdrant" Version="9.3.0" />
   </ItemGroup>
 
   <ItemGroup>

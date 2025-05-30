@@ -19,6 +19,7 @@ In this lab, you'll enhance your application by creating a Products page that le
 - **Cross-Service Data Flow**: See how data flows between your application components:
   
   ```mermaid
+  %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f4f4f4', 'primaryTextColor': '#000', 'primaryBorderColor': '#333', 'lineColor': '#333', 'secondaryColor': '#e1f5fe', 'tertiaryColor': '#f3e5f5' }}}%%
   flowchart LR
     PDF[Product PDFs] -->|Ingestion| VDB[(Vector DB)]
     User(User Query) -->|Generate Embeddings| VQ[Vector Query]
@@ -29,9 +30,9 @@ In this lab, you'll enhance your application by creating a Products page that le
     DB -->|Filtered Results| UI[UI Display]
     
     style PDF fill:#f9d5e5
-    style VDB fill:#eeeeee
+    style VDB fill:#e1f5fe
     style AI fill:#d5e8d4
-    style DB fill:#dae8fc
+    style DB fill:#f3e5f5
   ```
 
 - **Prompt Engineering for Structured Data**: Design AI prompts that return structured JSON responses for reliable data processing
@@ -67,7 +68,7 @@ public class ProductInfo
 }
 ```
 
-1. In the folder `Services` of the project `src/start/GenAiLab.Web`, create a database context for products in `ProductDbContext.cs`. This database context will manage the Entity Framework Core interactions with our SQLite database, allowing us to query and save product information:
+1. In the folder `Services` of the project `src/start/GenAiLab.Web`, create a database context for products in `ProductDbContext.cs`. This database context will manage the Entity Framework Core interactions with our PostgreSQL database, allowing us to query and save product information:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -135,7 +136,7 @@ Now we'll create a service that coordinates between the AI model, vector databas
 
 1. Extract product information from the vector database
 2. Use AI to generate descriptions and categorize products
-3. Store the results in our SQLite database
+3. Store the results in our PostgreSQL database
 
 In the folder `Services` of the project `src/start/GenAiLab.Web`, create a new file `ProductService.cs` to generate product information using AI. Replace the content with the following code:
 
@@ -324,18 +325,28 @@ private async Task<(string Description, string Category)> AskAIForProductInfoAsy
         // Create a simple prompt requesting JSON response
         var prompt = $@"Based on this content about '{productName}', provide a JSON object with these properties:
 1. description: A concise product description (max 200 characters)
-2. category: One of: 'Electronics', 'Safety Equipment', 'Outdoor Gear', or 'General'
+2. category: One of: 'Electronics', 'Safety Equipment', 'GPS', 'Backpack', 'Outdoor Gear', or 'General'
 
-Content: {content}";            // Get response from the chat client
+Return ONLY the raw JSON object without any markdown formatting, code blocks, or backticks.
+
+Content: {content}";
+
+        // Get response from the chat client
         var chatResponse = await _chatClient.GetResponseAsync(
             new[] {
-                new ChatMessage(ChatRole.System, "You are a product information assistant. Respond with valid JSON only."),
+                new ChatMessage(ChatRole.System, "You are a product information assistant. Respond with valid JSON only, no markdown formatting or backticks."),
                 new ChatMessage(ChatRole.User, prompt)
             });
-            
-            // Try to parse the JSON response
+        
+        // Remove any markdown code block indicators (```json and ```)
+        string cleanedResponse = chatResponse.Text
+            .Replace("```json", "")
+            .Replace("```", "")
+            .Trim();
+        
+        // Try to parse the cleaned JSON response
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var responseJson = System.Text.Json.JsonSerializer.Deserialize<ProductResponse>(chatResponse.Text, options);
+        var responseJson = System.Text.Json.JsonSerializer.Deserialize<ProductResponse>(cleanedResponse, options);
 
         if (responseJson != null)
         {
@@ -352,22 +363,43 @@ Content: {content}";            // Get response from the chat client
 }
 ```
 
-## Add the SQLite Resource in AppHost
+## Add the PostgreSQL Database in AppHost
 
-Now we need to create the actual SQLite database resource in our Aspire application. The `productDb` resource will:
+Now we need to create the actual PostgreSQL database resource in our Aspire application. Using PostgreSQL from the start ensures our application is production-ready without requiring database migrations later. The `productDb` resource will:
 
-1. Create a SQLite database container for storing product information
+1. Create a PostgreSQL database container for storing product information
 2. Make the database accessible to our web application through connection strings
 3. Ensure our web app waits for the database to be ready before starting
 
-First, you need to add the `productDb` SQLite resource to your AppHost project. Open the file `src/start/GenAiLab.AppHost/Program.cs` and add the following line after the `ingestionCache` declaration:
+First, you need to add the PostgreSQL NuGet package to your AppHost project. You can do this in multiple ways:
 
-```csharp
-var ingestionCache = builder.AddSqlite("ingestionCache");
-var productDb = builder.AddSqlite("productDb"); // Add this line
+**Using Visual Studio's .NET Aspire tooling**:
+
+- Right-click on the `GenAiLab.AppHost` project in Solution Explorer
+- Select "Add" > ".NET Aspire package..."
+- In the package manager that opens (with pre-filtered .NET Aspire packages), search for "Aspire.Hosting.PostgreSQL"
+- Select "9.1.0" for the package version *Important, don't skip this!*
+- Click "Install"
+
+**Using Terminal**:
+
+```powershell
+dotnet add GenAiLab.AppHost/GenAiLab.AppHost.csproj package Aspire.Hosting.PostgreSQL -v 9.1.0
 ```
 
-Then, make sure your web application references this resource by adding these lines after the existing `ingestionCache` reference:
+Next, you need to add the `productDb` PostgreSQL resource to your AppHost project. Open the file `src/start/GenAiLab.AppHost/Program.cs` and add the following lines after the vector database declaration:
+
+```csharp
+var vectorDB = builder.AddQdrant("vectordb")
+    .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var postgres = builder.AddPostgres("postgres")
+    .WithLifetime(ContainerLifetime.Persistent);
+var productDb = postgres.AddDatabase("productDb");
+```
+
+Then, make sure your web application references this resource by adding these lines after the existing vector database reference:
 
 ```csharp
 webApp
@@ -390,17 +422,15 @@ var vectorDB = builder.AddQdrant("vectordb")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var ingestionCache = builder.AddSqlite("ingestionCache");
-var productDb = builder.AddSqlite("productDb");
+var postgres = builder.AddPostgres("postgres")
+    .WithLifetime(ContainerLifetime.Persistent);
+var productDb = postgres.AddDatabase("productDb");
 
 var webApp = builder.AddProject<Projects.GenAiLab_Web>("aichatweb-app");
 webApp.WithReference(openai);
 webApp
     .WithReference(vectorDB)
     .WaitFor(vectorDB);
-webApp
-    .WithReference(ingestionCache)
-    .WaitFor(ingestionCache);
 webApp
     .WithReference(productDb)
     .WaitFor(productDb);
@@ -412,15 +442,38 @@ builder.Build().Run();
 
 With our database resource created, we now need to register our services with the dependency injection system. This step:
 
-1. Connects our `ProductDbContext` to the SQLite database we created
+1. Connects our `ProductDbContext` to the PostgreSQL database we created
 2. Makes our `ProductService` available throughout the application
 3. Initializes the database schema when the application starts
 
-In the project `src/start/GenAiLab.Web`, update your `Program.cs` file to register the new services. Just before the `var app = builder.Build();` line, add the following code:
+First, you need to add the PostgreSQL Entity Framework NuGet package to your Web project:
+
+**Using Visual Studio's NuGet Package Manager**:
+
+- Right-click on the `GenAiLab.Web` project in Solution Explorer
+- Select "Manage NuGet Packages..."
+- Click on the "Browse" tab
+- Search for "Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"
+- Select "9.1.0" for the package version *Important, don't skip this!*
+- Select the package and click "Install"
+
+**Using Terminal**:
+
+```powershell
+dotnet add GenAiLab.Web/GenAiLab.Web.csproj package Aspire.Npgsql.EntityFrameworkCore.PostgreSQL -v 9.1.0
+```
+
+In the project `src/start/GenAiLab.Web`, update your `Program.cs` file to register the new services. First, add the using statement at the top of the file:
+
+```csharp
+using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;
+```
+
+Then, just before the `var app = builder.Build();` line, add the following code:
 
 ```csharp
 // Add database support
-builder.AddSqliteDbContext<ProductDbContext>("productDb");
+builder.AddNpgsqlDbContext<ProductDbContext>("productDb");
 
 // Register product service
 builder.Services.AddScoped<ProductService>();
@@ -429,7 +482,7 @@ builder.Services.AddScoped<ProductService>();
 And after the `var app = builder.Build();` line, add initialization for the ProductDbContext:
 
 ```csharp
-IngestionCacheDbContext.Initialize(app.Services);
+var app = builder.Build();
 ProductDbContext.Initialize(app.Services); // Add this line
 ```
 
@@ -678,4 +731,4 @@ This Products feature demonstrates a practical implementation of the AI architec
 
 This implementation highlights the power of combining traditional database capabilities with AI features. The AI does the heavy lifting of understanding document content, while the database provides efficient querying and filtering that would be hard to achieve using only vector search.
 
-> **Note:** While the starter code uses SQLite for database storage, the completed project in `/src/complete` uses PostgreSQL. If you're following along with the complete project, you'll need the `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` namespace and should use `builder.AddNpgsqlDbContext` instead of `builder.AddSqliteDbContext`.
+> **Note:** This lab uses PostgreSQL from the start to ensure production readiness. By using PostgreSQL directly in development, we avoid the need for database migrations when deploying to Azure, making the deployment process smoother and more reliable.

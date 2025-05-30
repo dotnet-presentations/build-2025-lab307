@@ -12,7 +12,6 @@ var vectorDB = builder.AddQdrant("vectordb")
 
 var postgres = builder.AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent);
-var ingestionCache = postgres.AddDatabase("ingestionCache");
 var productDb = postgres.AddDatabase("productDb");
 
 var webApp = builder.AddProject<Projects.GenAiLab_Web>("aichatweb-app");
@@ -20,9 +19,6 @@ webApp.WithReference(openai);
 webApp
     .WithReference(vectorDB)
     .WaitFor(vectorDB);
-webApp
-    .WithReference(ingestionCache)
-    .WaitFor(ingestionCache);
 webApp
     .WithReference(productDb)
     .WaitFor(productDb);

@@ -20,15 +20,14 @@ openai.AddEmbeddingGenerator("text-embedding-3-small");
 
 builder.AddQdrantClient("vectordb");
 
-builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>();
+builder.Services.AddQdrantCollection<Guid, IngestedChunk>("data-genailab-chunks");
+builder.Services.AddQdrantCollection<Guid, IngestedDocument>("data-genailab-documents");
 builder.Services.AddScoped<DataIngestor>();
 builder.Services.AddSingleton<SemanticSearch>();
-builder.AddNpgsqlDbContext<IngestionCacheDbContext>("ingestionCache");
 builder.AddNpgsqlDbContext<ProductDbContext>("productDb");
 builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
-IngestionCacheDbContext.Initialize(app.Services);
 ProductDbContext.Initialize(app.Services);
 
 app.MapDefaultEndpoints();

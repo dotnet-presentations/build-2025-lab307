@@ -4,19 +4,18 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>e75d6798-c654-4a3d-be64-2b90c853fa91</UserSecretsId>
+    <UserSecretsId>533b8596-9732-4d58-b0eb-92d414936255</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.1.0-preview.1.25121.10" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.4.0-preview.1.25207.5" />
-    <PackageReference Include="CommunityToolkit.Aspire.Microsoft.EntityFrameworkCore.Sqlite" Version="9.3.1-beta.260" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.4.0-preview.1.25207.5" />
-    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.45.0" />
-    <PackageReference Include="PdfPig" Version="0.1.9" />
+    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.3.0-preview.1.25265.20" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.5.0-preview.1.25265.7" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.5.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.53.0" />
+    <PackageReference Include="PdfPig" Version="0.1.10" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="Aspire.Qdrant.Client" Version="9.1.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.45.0-preview" />
+    <PackageReference Include="Aspire.Qdrant.Client" Version="9.3.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.53.0-preview" />
   </ItemGroup>
 
   <ItemGroup>

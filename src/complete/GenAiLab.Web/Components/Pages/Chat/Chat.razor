@@ -105,10 +105,9 @@
         [Description("The phrase to search for.")] string searchPhrase,
         [Description("If possible, specify the filename to search that file only. If not provided or empty, the search includes all files.")] string? filenameFilter = null)
     {
-        await InvokeAsync(StateHasChanged);
-        var results = await Search.SearchAsync(searchPhrase, filenameFilter, maxResults: 5);
+        await InvokeAsync(StateHasChanged);        var results = await Search.SearchAsync(searchPhrase, filenameFilter, maxResults: 5);
         return results.Select(result =>
-            $"<result filename=\"{result.FileName}\" page_number=\"{result.PageNumber}\">{result.Text}</result>");
+            $"<result filename=\"{result.DocumentId}\" page_number=\"{result.PageNumber}\">{result.Text}</result>");
     }
 
     public void Dispose()

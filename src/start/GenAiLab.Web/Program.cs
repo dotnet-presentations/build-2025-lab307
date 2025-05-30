@@ -1,10 +1,8 @@
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.VectorData;
 using GenAiLab.Web.Components;
 using GenAiLab.Web.Services;
 using GenAiLab.Web.Services.Ingestion;
 using OpenAI;
-using Microsoft.SemanticKernel.Connectors.Qdrant;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
@@ -18,14 +16,12 @@ openai.AddChatClient("gpt-4o-mini")
 openai.AddEmbeddingGenerator("text-embedding-3-small");
 
 builder.AddQdrantClient("vectordb");
-
-builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>();
+builder.Services.AddQdrantCollection<Guid, IngestedChunk>("data-genailab-chunks");
+builder.Services.AddQdrantCollection<Guid, IngestedDocument>("data-genailab-documents");
 builder.Services.AddScoped<DataIngestor>();
 builder.Services.AddSingleton<SemanticSearch>();
-builder.AddSqliteDbContext<IngestionCacheDbContext>("ingestionCache");
 
 var app = builder.Build();
-IngestionCacheDbContext.Initialize(app.Services);
 
 app.MapDefaultEndpoints();
 

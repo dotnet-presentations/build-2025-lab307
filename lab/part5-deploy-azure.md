@@ -2,81 +2,10 @@
 
 ## In this lab
 
-In this lab, you will learn how to deploy your AI application to Azure using the Azure Developer CLI (`azd`). You'll prepare your application for production, migrate from SQLite to PostgreSQL for better scalability, and deploy your application to Azure Container Apps.
+In this lab, you will learn how to deploy your AI application to Azure using the Azure Developer CLI (`azd`). You'll deploy your PostgreSQL-based application to Azure Container Apps for production use.
 
 > [!TIP]
 > If you haven't completed the previous steps in the lab or are having trouble with your code, you can use the `/src/complete` folder which already includes all the necessary changes. The complete code has already been updated with the PostgreSQL configuration and external HTTP endpoints setup described in this section. You can skip directly to the "Set Up the Azure Developer CLI" section and deploy that code instead.
-
-## Prepare for Production: Migrate from SQLite to PostgreSQL
-
-The first step in preparing for production is to upgrade our data storage from SQLite (which is great for development) to PostgreSQL (which is better suited for production workloads).
-
-1. **Add PostgreSQL NuGet packages**:
-
-   **Using Visual Studio's .NET Aspire tooling**:
-      For the `GenAiLab.AppHost` project:
-   - Right-click on the `GenAiLab.AppHost` project in Solution Explorer
-   - Select "Add" > ".NET Aspire package..."
-   - In the package manager that opens (with pre-filtered .NET Aspire packages), search for "Aspire.Hosting.PostgreSQL"
-   - Select "9.1.0" for the package version *Important, don't skip this!*
-   - Click "Install"
-
-     For the `GenAiLab.Web` project:
-   - Right-click on the `GenAiLab.Web` project in Solution Explorer
-   - Select "Manage NuGet Packages..."
-   - Click on the "Browse" tab
-   - Search for "Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"
-   - Select "9.1.0" for the package version *Important, don't skip this!*
-   - Select the package and click "Install"
-
-   **Using Terminal**:   To open the terminal in Visual Studio:
-   - Go to "View" menu
-   - Select "Terminal" (or press Ctrl+`)
-
-   Then run these commands:
-
-   ```powershell
-   dotnet add GenAiLab.AppHost/GenAiLab.AppHost.csproj package Aspire.Hosting.PostgreSQL -v 9.1.0
-   dotnet add GenAiLab.Web/GenAiLab.Web.csproj package Aspire.Npgsql.EntityFrameworkCore.PostgreSQL -v 9.1.0
-   ```
-
-1. **Update AppHost Program.cs**:
-
-   Change the SQLite database references to PostgreSQL in `GenAiLab.AppHost/Program.cs`:
-
-   ```csharp
-   // Replace these lines:
-   var ingestionCache = builder.AddSqlite("ingestionCache");
-   var productDb = builder.AddSqlite("productDb");
-
-   // With:
-   var postgres = builder.AddPostgres("postgres")
-       .WithLifetime(ContainerLifetime.Persistent);
-   var ingestionCache = postgres.AddDatabase("ingestionCache");
-   var productDb = postgres.AddDatabase("productDb");
-   ```
-
-1. **Update Web Project Database Context**:
-
-   In the `GenAiLab.Web/Program.cs` file, add a using statement for the new package (`using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;`), then update the database context registration:
-
-   ```csharp
-   // Replace these lines:
-   builder.AddSqliteDbContext<IngestionCacheDbContext>("ingestionCache");
-   builder.AddSqliteDbContext<ProductDbContext>("productDb");
-
-   // With:
-   builder.AddNpgsqlDbContext<IngestionCacheDbContext>("ingestionCache");
-   builder.AddNpgsqlDbContext<ProductDbContext>("productDb");
-   ```
-
-1. **Test locally before deployment**:
-
-   Run the application locally to ensure the PostgreSQL migration works:
-
-   ```powershell
-   dotnet run --project GenAiLab.AppHost/GenAiLab.AppHost.csproj
-   ```
 
 ## Configure the web application for external access
 
@@ -263,9 +192,8 @@ Once deployed, you can manage your deployment using various Azure Developer CLI 
 
 ## What You've Learned
 
-- How to migrate from SQLite to PostgreSQL for production readiness
 - How to use the Azure Developer CLI (azd) to deploy your AI application
-- How to set up and configure Azure Container Apps
+- How to set up and configure Azure Container Apps for production workloads
 - How to manage and monitor your deployed application
 - Best practices for security, scaling, and cost management in production
 
@@ -274,9 +202,9 @@ Once deployed, you can manage your deployment using various Azure Developer CLI 
 Congratulations! You've completed all parts of the AI Web Chat template lab. You now have the knowledge to:
 
 1. Create AI applications using the AI Web Chat template
-1. Understand and customize the template code structure
-1. Migrate from GitHub Models to Azure OpenAI
-1. Implement AI-powered features like the Products page
-1. Deploy your application to production environments using Azure
+2. Understand and customize the template code structure
+3. Migrate from GitHub Models to Azure OpenAI
+4. Implement AI-powered features like the Products page using PostgreSQL
+5. Deploy your application to production environments using Azure
 
 Continue exploring the possibilities of AI with .NET and build amazing AI-powered applications!

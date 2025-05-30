@@ -10,15 +10,10 @@ var vectorDB = builder.AddQdrant("vectordb")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var ingestionCache = builder.AddSqlite("ingestionCache");
-
 var webApp = builder.AddProject<Projects.GenAiLab_Web>("aichatweb-app");
 webApp.WithReference(openai);
 webApp
     .WithReference(vectorDB)
     .WaitFor(vectorDB);
-webApp
-    .WithReference(ingestionCache)
-    .WaitFor(ingestionCache);
 
 builder.Build().Run();

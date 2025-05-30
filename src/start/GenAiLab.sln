@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36025.13 d17.14
+VisualStudioVersion = 17.14.36109.1 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenAiLab.AppHost", "GenAiLab.AppHost\GenAiLab.AppHost.csproj", "{A55EF3B0-1BAA-5318-A166-45CD6391C935}"
 EndProject
@@ -32,6 +32,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {73C4F3DA-EDA1-48BA-8230-E7B040ACC8CA}
+		SolutionGuid = {0275FBB9-B32B-4CC8-815A-E0EC320DF8C0}
 	EndGlobalSection
 EndGlobal
